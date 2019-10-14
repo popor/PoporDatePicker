@@ -19,8 +19,6 @@
 #define PickViewLabelHeight  226
 #define PickViewButtonHeight 44
 
-typedef void(^PoporDatePickerDateBlock)(NSDate *);
-
 @interface PoporDatePicker ()<UIPickerViewDelegate,UIPickerViewDataSource,UIGestureRecognizerDelegate> {
     //日期存储数组
     NSMutableArray *_yearArray;
@@ -41,23 +39,13 @@ typedef void(^PoporDatePickerDateBlock)(NSDate *);
     NSDate *_startDate;
 }
 
-@property (nonatomic, strong) UIView       * bottomView;
-@property (nonatomic, strong) UILabel      * showYearLabel;
-@property (nonatomic, strong) UIButton     * doneBT;
-
-@property (nonatomic, strong) UIPickerView * datePicker;
-@property (nonatomic, strong) NSDate       * scrollToDate;//滚到指定日期
-
-@property (nonatomic, copy  ) PoporDatePickerDateBlock doneBlock;
-@property (nonatomic        ) PoporDatePickerStyle datePickerStyle;
-
 @end
 
 @implementation PoporDatePicker
 /**
  默认滚动到当前时间
  */
-- (instancetype)initWithDateStyle:(PoporDatePickerStyle)datePickerStyle CompleteBlock:(void(^)(NSDate *))completeBlock {
+- (instancetype)initWithDateStyle:(PoporDatePickerStyle)datePickerStyle CompleteBlock:(PoporDatePickerDateBlock)completeBlock {
     if (self = [super init]) {
         self.datePickerStyle = datePickerStyle;
         switch (datePickerStyle) {
@@ -96,11 +84,7 @@ typedef void(^PoporDatePickerDateBlock)(NSDate *);
         [self setupUI];
         [self defaultConfig];
         
-        if (completeBlock) {
-            self.doneBlock = ^(NSDate *selectDate) {
-                completeBlock(selectDate);
-            };
-        }
+        self.doneBlock = completeBlock;
     }
     return self;
 }
@@ -108,7 +92,7 @@ typedef void(^PoporDatePickerDateBlock)(NSDate *);
 /**
  滚动到指定的的日期
  */
-- (instancetype)initWithDateStyle:(PoporDatePickerStyle)datePickerStyle scrollToDate:(NSDate *)scrollToDate CompleteBlock:(void(^)(NSDate *))completeBlock {
+- (instancetype)initWithDateStyle:(PoporDatePickerStyle)datePickerStyle scrollToDate:(NSDate *)scrollToDate CompleteBlock:(PoporDatePickerDateBlock)completeBlock {
     if (self = [super init]) {
         self.datePickerStyle = datePickerStyle;
         self.scrollToDate = scrollToDate;
@@ -148,11 +132,7 @@ typedef void(^PoporDatePickerDateBlock)(NSDate *);
         [self setupUI];
         [self defaultConfig];
         
-        if (completeBlock) {
-            self.doneBlock = ^(NSDate *selectDate) {
-                completeBlock(selectDate);
-            };
-        }
+        self.doneBlock = completeBlock;
     }
     return self;
 }
@@ -175,7 +155,7 @@ typedef void(^PoporDatePickerDateBlock)(NSDate *);
         l.frame              = CGRectMake(0, 0, self.bottomView.frame.size.width, PickViewLabelHeight);
         l.backgroundColor    = [UIColor clearColor];
         l.font               = [UIFont systemFontOfSize:110];
-        l.textColor          = [UIColor lightGrayColor];
+        l.textColor          = PdpRGBA(233, 237, 242, 1);
         l.textAlignment      = NSTextAlignmentCenter;
         l.userInteractionEnabled = NO;
         
@@ -744,7 +724,9 @@ typedef void(^PoporDatePickerDateBlock)(NSDate *);
 - (void)doneAction:(UIButton *)btn {
     _startDate = [self.scrollToDate dateWithFormatter:_dateFormatter];
     
-    self.doneBlock(_startDate);
+    if (self.doneBlock) {
+        self.doneBlock(_startDate);
+    }
     [self dismiss];
 }
 

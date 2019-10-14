@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'PoporDatePicker'
-  s.version          = '0.01'
+  s.version          = '0.02'
   s.summary          = '该仓库复制于 https://github.com/Zws-China/DatePicker , 由于作者使用了xib, 代码无法直接运行; 移除了部分不需要的函数, 标准命名规则;'
 
   s.homepage         = 'https://github.com/popor/PoporDatePicker'
