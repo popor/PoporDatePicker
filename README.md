@@ -20,9 +20,17 @@ it, simply add the following line to your Podfile:
 pod 'PoporDatePicker'
 ```
 
+该仓库复制于 https://github.com/Zws-China/DatePicker , 由于作者使用了xib, 代码无法直接运行; 移除了部分不需要的函数, 标准命名规则;
+
+<p>
+<img src="https://github.com/popor/PoporNetRecord/blob/master/Example/PoporNetRecord/image/AccessWifiInformation.png" width="30%" height="30%">
+<img src="https://github.com/popor/PoporNetRecord/blob/master/Example/PoporNetRecord/image/AccessWifiInformation.png" width="30%" height="30%">
+
+</p>
+
 ## Author
 
-wangkq, 908891024@qq.com
+popor, 908891024@qq.com
 
 ## License
 
