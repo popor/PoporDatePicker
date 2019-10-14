@@ -1,0 +1,6 @@
+framework module PoporDatePicker {
+  umbrella header "PoporDatePicker-umbrella.h"
+
+  export *
+  module * { export * }
+}

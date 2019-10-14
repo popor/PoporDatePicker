@@ -1,0 +1,16 @@
+PODS:
+  - PoporDatePicker (0.01)
+
+DEPENDENCIES:
+  - PoporDatePicker (from `../`)
+
+EXTERNAL SOURCES:
+  PoporDatePicker:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  PoporDatePicker: 398ea2d57d1d0514f4fece6285d5fa9baa69ad63
+
+PODFILE CHECKSUM: 88ec2b09b84a051818f2e7e8822460cda12bc390
+
+COCOAPODS: 1.8.3
