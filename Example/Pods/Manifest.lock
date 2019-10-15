@@ -1,5 +1,5 @@
 PODS:
-  - PoporDatePicker (0.02)
+  - PoporDatePicker (0.03)
 
 DEPENDENCIES:
   - PoporDatePicker (from `../`)
@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  PoporDatePicker: 29218c64c9231e713eebbf4b13bd30c78b510021
+  PoporDatePicker: 0d707294728eb45f8d28e7c8c6bed1bc76182614
 
 PODFILE CHECKSUM: 88ec2b09b84a051818f2e7e8822460cda12bc390
 

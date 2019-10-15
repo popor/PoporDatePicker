@@ -622,8 +622,16 @@
     
     [pickerView reloadAllComponents];
     
-    NSString *dateStr = [NSString stringWithFormat:@"%@-%@-%@ %@:%@",_yearArray[yearIndex],_monthArray[monthIndex],_dayArray[dayIndex],_hourArray[hourIndex],_minuteArray[minuteIndex]];
+    NSString *dateStr;
     switch (self.datePickerStyle) {
+        case PoporDatePickerStyle_YMDHM:{
+            dateStr = [NSString stringWithFormat:@"%@-%@-%@ %@:%@",_yearArray[yearIndex],_monthArray[monthIndex],_dayArray[dayIndex],_hourArray[hourIndex],_minuteArray[minuteIndex]];
+            break;
+        }
+        case PoporDatePickerStyle_MDHM: {
+            dateStr = [NSString stringWithFormat:@"%@-%@ %@:%@", _monthArray[monthIndex],_dayArray[dayIndex],_hourArray[hourIndex],_minuteArray[minuteIndex]];
+            break;
+        }
         case PoporDatePickerStyle_YMD: {
             dateStr = [NSString stringWithFormat:@"%@-%@-%@",_yearArray[yearIndex],_monthArray[monthIndex],_dayArray[dayIndex]];
             break;
@@ -633,6 +641,7 @@
             break;
         }
         case PoporDatePickerStyle_MD: {
+            // !!!: 原作者这里保留了year属性.
             dateStr = [NSString stringWithFormat:@"%@-%@-%@",_yearArray[yearIndex],_monthArray[monthIndex],_dayArray[dayIndex]];
             break;
         }
