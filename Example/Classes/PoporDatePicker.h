@@ -63,6 +63,11 @@ typedef NS_ENUM(int, PoporDatePickerStyle) {
  */
 @property (nonatomic        ) BOOL hideBackgroundYearLabel;
 
+/**
+ *  底部距离边界的距离默认为10
+ */
+@property (nonatomic        ) CGFloat bottomGap; // 默认为10;
+
 
 @property (nonatomic, strong) UIView       * bottomView;
 @property (nonatomic, strong) UILabel      * showYearLabel;

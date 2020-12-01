@@ -83,6 +83,7 @@
         
         [self setupUI];
         [self defaultConfig];
+        self.bottomGap = 10;
         
         self.doneBlock = completeBlock;
     }
@@ -185,7 +186,10 @@
         dp;
     });
 
-    self.doneBTColor = PdpRGBA(247, 133, 51, 1);
+    if (!self.doneBTColor) {
+        self.doneBTColor = PdpRGBA(247, 133, 51, 1);
+    }
+    
     self.doneBT.backgroundColor = self.doneBTColor;
     
     //点击背景是否影藏
@@ -712,7 +716,7 @@
 - (void)show {
     [[UIApplication sharedApplication].keyWindow addSubview:self];
     [UIView animateWithDuration:0.3 animations:^{
-        self.bottomView.frame = CGRectMake(self.bottomView.frame.origin.x, self.frame.size.height-PickViewHeight - 10, self.bottomView.frame.size.width, self.bottomView.frame.size.height);
+        self.bottomView.frame = CGRectMake(self.bottomView.frame.origin.x, self.frame.size.height-PickViewHeight - self.bottomGap, self.bottomView.frame.size.width, self.bottomView.frame.size.height);
         
         self.backgroundColor = PdpRGBA(0, 0, 0, 0.4);
         [self layoutIfNeeded];
@@ -864,7 +868,7 @@
     [self getNowDate:self.scrollToDate animated:NO];
 }
 
-- (void)setdoneBTColor:(UIColor *)doneBTColor {
+- (void)setDoneBTColor:(UIColor *)doneBTColor {
     _doneBTColor = doneBTColor;
     self.doneBT.backgroundColor = doneBTColor;
 }
