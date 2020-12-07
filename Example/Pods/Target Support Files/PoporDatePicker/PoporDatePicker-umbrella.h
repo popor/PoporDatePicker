@@ -12,6 +12,7 @@
 
 #import "NSDate+PoporDatePicker.h"
 #import "PoporDatePicker.h"
+#import "PoporDatePickerSelectEntity.h"
 
 FOUNDATION_EXPORT double PoporDatePickerVersionNumber;
 FOUNDATION_EXPORT const unsigned char PoporDatePickerVersionString[];

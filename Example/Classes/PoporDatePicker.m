@@ -15,9 +15,9 @@
 #define PdpMaxYear           2099
 #define PdpMinYear           1900
 
-#define PickViewHeight       270
+//#define PickViewHeight       270
 #define PickViewLabelHeight  226
-#define PickViewButtonHeight 44
+//#define PickViewButtonHeight 44
 
 @interface PoporDatePicker ()<UIPickerViewDelegate,UIPickerViewDataSource,UIGestureRecognizerDelegate> {
     //日期存储数组
@@ -42,118 +42,103 @@
 @end
 
 @implementation PoporDatePicker
-/**
- 默认滚动到当前时间
- */
-- (instancetype)initWithDateStyle:(PoporDatePickerStyle)datePickerStyle CompleteBlock:(PoporDatePickerDateBlock)completeBlock {
+
+- (instancetype)init {
     if (self = [super init]) {
-        self.datePickerStyle = datePickerStyle;
-        switch (datePickerStyle) {
-            case PoporDatePickerStyle_YMDHM:
-                _dateFormatter = @"yyyy-MM-dd HH:mm";
-                break;
-            case PoporDatePickerStyle_MDHM:
-                _dateFormatter = @"yyyy-MM-dd HH:mm";
-                break;
-            case PoporDatePickerStyle_YMD:
-                _dateFormatter = @"yyyy-MM-dd";
-                break;
-            case PoporDatePickerStyle_YM:
-                _dateFormatter = @"yyyy-MM";
-                break;
-            case PoporDatePickerStyle_MD:
-                _dateFormatter = @"yyyy-MM-dd";
-                break;
-            case PoporDatePickerStyle_HM:
-                _dateFormatter = @"HH:mm";
-                break;
-            case PoporDatePickerStyle_Y:
-                _dateFormatter = @"yyyy";
-                break;
-            case PoporDatePickerStyle_M:
-                _dateFormatter = @"MM";
-                break;
-            case PoporDatePickerStyle_DHM:
-                _dateFormatter = @"dd HH:mm";
-                break;
-            default:
-                _dateFormatter = @"yyyy-MM-dd HH:mm";
-                break;
-        }
+        self.bottomGap       = 10;
+        self.leftRightGap    = 10;
+        self.bottomViewCorner = 8;
+        self.bottomRectCorner = UIRectCornerAllCorners;
         
-        [self setupUI];
-        [self defaultConfig];
-        self.bottomGap = 10;
+        self.topBtLHeight    = 40;
+        self.bottomBtHeight  = 40;
         
-        self.doneBlock = completeBlock;
+        self.datePickerStyle = PoporDatePickerStyle_YMDHM;
+        self.uiStyle         = PoporDatePickerUIStyle_done;
+        
     }
     return self;
 }
 
-/**
- 滚动到指定的的日期
- */
-- (instancetype)initWithDateStyle:(PoporDatePickerStyle)datePickerStyle scrollToDate:(NSDate *)scrollToDate CompleteBlock:(PoporDatePickerDateBlock)completeBlock {
-    if (self = [super init]) {
-        self.datePickerStyle = datePickerStyle;
-        self.scrollToDate = scrollToDate;
-        switch (datePickerStyle) {
-            case PoporDatePickerStyle_YMDHM:
-                _dateFormatter = @"yyyy-MM-dd HH:mm";
-                break;
-            case PoporDatePickerStyle_MDHM:
-                _dateFormatter = @"yyyy-MM-dd HH:mm";
-                break;
-            case PoporDatePickerStyle_YMD:
-                _dateFormatter = @"yyyy-MM-dd";
-                break;
-            case PoporDatePickerStyle_YM:
-                _dateFormatter = @"yyyy-MM";
-                break;
-            case PoporDatePickerStyle_MD:
-                _dateFormatter = @"yyyy-MM-dd";
-                break;
-            case PoporDatePickerStyle_HM:
-                _dateFormatter = @"HH:mm";
-                break;
-            case PoporDatePickerStyle_Y:
-                _dateFormatter = @"yyyy";
-                break;
-            case PoporDatePickerStyle_M:
-                _dateFormatter = @"MM";
-                break;
-            case PoporDatePickerStyle_DHM:
-                _dateFormatter = @"dd HH:mm";
-                break;
-            default:
-                _dateFormatter = @"yyyy-MM-dd HH:mm";
-                break;
-        }
-        
-        [self setupUI];
-        [self defaultConfig];
-        
-        self.doneBlock = completeBlock;
+- (void)setDatePickerStyle:(PoporDatePickerStyle)datePickerStyle {
+    _datePickerStyle = datePickerStyle;
+    
+    switch (datePickerStyle) {
+        case PoporDatePickerStyle_YMDHM:
+            _dateFormatter = @"yyyy-MM-dd HH:mm";
+            break;
+        case PoporDatePickerStyle_MDHM:
+            _dateFormatter = @"yyyy-MM-dd HH:mm";
+            break;
+        case PoporDatePickerStyle_YMD:
+            _dateFormatter = @"yyyy-MM-dd";
+            break;
+        case PoporDatePickerStyle_YM:
+            _dateFormatter = @"yyyy-MM";
+            break;
+        case PoporDatePickerStyle_MD:
+            _dateFormatter = @"yyyy-MM-dd";
+            break;
+        case PoporDatePickerStyle_HM:
+            _dateFormatter = @"HH:mm";
+            break;
+        case PoporDatePickerStyle_Y:
+            _dateFormatter = @"yyyy";
+            break;
+        case PoporDatePickerStyle_M:
+            _dateFormatter = @"MM";
+            break;
+        case PoporDatePickerStyle_DHM:
+            _dateFormatter = @"dd HH:mm";
+            break;
+        default:
+            _dateFormatter = @"yyyy-MM-dd HH:mm";
+            break;
     }
-    return self;
 }
 
 - (void)setupUI {
+    
+    //设置所需的圆角位置以及大小
     self.frame = CGRectMake(0, 0, PdpScreenWidth, PdpScreenHeight);
-    //NSLog(@"frame: %@", NSStringFromCGRect(self.frame));
+    
+    CGRect bottomFrame;
+    CGRect yearLFrame;
+    switch (self.uiStyle) {
+        case PoporDatePickerUIStyle_done: {
+            bottomFrame = CGRectMake(10, self.frame.size.height -(PickViewLabelHeight +self.bottomBtHeight +self.bottomGap), self.frame.size.width-20, PickViewLabelHeight +self.bottomBtHeight);
+            yearLFrame  = CGRectMake(0, 0, bottomFrame.size.width, PickViewLabelHeight);
+            break;
+        }
+        case PoporDatePickerUIStyle_confirmCancel: {
+            bottomFrame = CGRectMake(10, self.frame.size.height -(PickViewLabelHeight +self.topBtLHeight +self.bottomGap), self.frame.size.width-20, PickViewLabelHeight +self.topBtLHeight);
+            yearLFrame  = CGRectMake(0, self.topBtLHeight, bottomFrame.size.width, PickViewLabelHeight);
+            break;
+        }
+    }
     self.bottomView = ({
         UIView * view = [UIView new];
-        view.layer.cornerRadius  = 10;
-        view.layer.masksToBounds = YES;
-        view.frame               = CGRectMake(10, self.frame.size.height-PickViewHeight - 10, self.frame.size.width-20, PickViewHeight);
+        //view.layer.cornerRadius  = 10;
+        //view.layer.masksToBounds = YES;
+        
+        view.frame = bottomFrame;
+        
+        {   // 圆角
+            UIBezierPath *maskPath  = [UIBezierPath bezierPathWithRoundedRect:view.bounds byRoundingCorners:self.bottomRectCorner cornerRadii:CGSizeMake(self.bottomViewCorner, self.bottomViewCorner)];
+            CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
+            maskLayer.frame = view.bounds;
+            maskLayer.path  = maskPath.CGPath;
+            view.layer.mask   = maskLayer;
+        }
         view.backgroundColor = [UIColor whiteColor];
         
         [self addSubview:view];
         view;
     });
+    
     self.showYearLabel = ({
         UILabel * l = [UILabel new];
-        l.frame              = CGRectMake(0, 0, self.bottomView.frame.size.width, PickViewLabelHeight);
+        l.frame              = yearLFrame;
         l.backgroundColor    = [UIColor clearColor];
         l.font               = [UIFont systemFontOfSize:110];
         l.textColor          = PdpRGBA(233, 237, 242, 1);
@@ -163,21 +148,89 @@
         [self.bottomView addSubview:l];
         l;
     });
-    self.doneBT = ({
-        UIButton * button = [UIButton buttonWithType:UIButtonTypeCustom];
-        button.frame = CGRectMake(0, PickViewLabelHeight, self.bottomView.frame.size.width, PickViewButtonHeight);
-        [button setTitle:@"确定" forState:UIControlStateNormal];
-        [button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        
-        [self.bottomView addSubview:button];
-        
-        [button addTarget:self action:@selector(doneAction:) forControlEvents:UIControlEventTouchUpInside];
-        
-        button;
-    });
+    
+    switch (self.uiStyle) {
+        case PoporDatePickerUIStyle_done: {
+            
+            self.doneBT = ({
+                UIButton * button = [UIButton buttonWithType:UIButtonTypeCustom];
+                button.frame = CGRectMake(0, PickViewLabelHeight, self.bottomView.frame.size.width, self.bottomBtHeight);
+                [button setTitle:@"确定" forState:UIControlStateNormal];
+                [button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+                
+                [self.bottomView addSubview:button];
+                
+                [button addTarget:self action:@selector(doneAction:) forControlEvents:UIControlEventTouchUpInside];
+                
+                button;
+            });
+            
+            if (!self.doneBTColor) {
+                self.doneBTColor = PdpRGBA(247, 133, 51, 1);
+            }
+            self.doneBT.backgroundColor = self.doneBTColor;
+            
+            break;
+        }
+        case PoporDatePickerUIStyle_confirmCancel: {
+            CGFloat btWidth = 60;
+            self.titleL = ({
+                UILabel * oneL = [UILabel new];
+                oneL.frame               = CGRectMake(btWidth, 0, self.bottomView.frame.size.width -btWidth*2, self.topBtLHeight);
+                oneL.backgroundColor     = [UIColor clearColor]; // ios8 之前
+                oneL.font                = [UIFont systemFontOfSize:15];
+                oneL.textColor           = [UIColor blackColor];
+                oneL.layer.masksToBounds = YES; // ios8 之后 lableLayer 问题
+                oneL.numberOfLines       = 1;
+                oneL.textAlignment       = NSTextAlignmentCenter;
+                
+                [self.bottomView addSubview:oneL];
+                oneL;
+            });
+            
+            self.cancleBT = ({
+                UIButton * oneBT = [UIButton buttonWithType:UIButtonTypeCustom];
+                oneBT.frame =  CGRectMake(0, 0, btWidth, self.topBtLHeight);
+                [oneBT setTitle:@"取消" forState:UIControlStateNormal];
+                [oneBT setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+                
+                [self.bottomView addSubview:oneBT];
+                
+                [oneBT addTarget:self action:@selector(cancleAction:) forControlEvents:UIControlEventTouchUpInside];
+                
+                oneBT;
+            });
+            self.confirmBT = ({
+                UIButton * oneBT = [UIButton buttonWithType:UIButtonTypeCustom];
+                oneBT.frame =  CGRectMake(self.bottomView.frame.size.width -btWidth, 0, btWidth, self.topBtLHeight);
+                [oneBT setTitle:@"确定" forState:UIControlStateNormal];
+                [oneBT setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+                
+                [self.bottomView addSubview:oneBT];
+                
+                [oneBT addTarget:self action:@selector(confirmAction:) forControlEvents:UIControlEventTouchUpInside];
+                
+                oneBT;
+            });
+            
+            self.topLineView = ({
+                UIView * view = [UIView new];
+                view.frame = CGRectMake(16, self.topBtLHeight, self.bottomView.frame.size.width - 32, 0.5);
+                view.backgroundColor = [UIColor colorWithRed:0.937 green:0.937 blue:0.937 alpha:1];
+                
+                [self.bottomView addSubview:view];
+                view;
+            });
+            
+            break;
+        }
+        default:
+            break;
+    }
+    
     
     self.datePicker = ({
-        UIPickerView * dp = [[UIPickerView alloc] initWithFrame:self.showYearLabel.bounds];
+        UIPickerView * dp = [[UIPickerView alloc] initWithFrame:self.showYearLabel.frame];
         dp.showsSelectionIndicator = YES;
         dp.delegate   = self;
         dp.dataSource = self;
@@ -185,17 +238,12 @@
         [self.bottomView addSubview:dp];
         dp;
     });
-
-    if (!self.doneBTColor) {
-        self.doneBTColor = PdpRGBA(247, 133, 51, 1);
+    
+    {   //点击背景是否影藏
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(dismiss)];
+        tap.delegate = self;
+        [self addGestureRecognizer:tap];
     }
-    
-    self.doneBT.backgroundColor = self.doneBTColor;
-    
-    //点击背景是否影藏
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(dismiss)];
-    tap.delegate = self;
-    [self addGestureRecognizer:tap];
     
     self.backgroundColor = PdpRGBA(0, 0, 0, 0);
     [self layoutIfNeeded];
@@ -210,7 +258,7 @@
     
     //循环滚动时需要用到
     preRow       = (self.scrollToDate.year-PdpMinYear)*12+self.scrollToDate.month-1;
-
+    
     //设置年月日时分数据
     _yearArray   = [self setArray:_yearArray];
     _monthArray  = [self setArray:_monthArray];
@@ -292,42 +340,51 @@
 
 #pragma mark - UIPickerViewDelegate,UIPickerViewDataSource
 - (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
-    switch (self.datePickerStyle) {
-        case PoporDatePickerStyle_YMDHM:
-            [self addLabelWithName:@[@"年",@"月",@"日",@"时",@"分"]];
-            return 5;
-        case PoporDatePickerStyle_MDHM:
-            [self addLabelWithName:@[@"月",@"日",@"时",@"分"]];
-            return 4;
-        case PoporDatePickerStyle_YMD:
-            [self addLabelWithName:@[@"年",@"月",@"日"]];
-            return 3;
-        case PoporDatePickerStyle_YM:
-            [self addLabelWithName:@[@"年",@"月"]];
-            return 2;
-        case PoporDatePickerStyle_MD:
-            [self addLabelWithName:@[@"月",@"日"]];
-            return 2;
-        case PoporDatePickerStyle_HM:
-            [self addLabelWithName:@[@"时",@"分"]];
-            return 2;
-        case PoporDatePickerStyle_Y:
-            [self addLabelWithName:@[@"年"]];
-            return 1;
-        case PoporDatePickerStyle_M:
-            [self addLabelWithName:@[@"月"]];
-            return 1;
-        case PoporDatePickerStyle_DHM:
-            [self addLabelWithName:@[@"日",@"时",@"分"]];
-            return 3;
-        default:
-            return 0;
+    if (self.customDatasourceArray) {
+        return self.customDatasourceArray.count;
+    } else {
+        switch (self.datePickerStyle) {
+            case PoporDatePickerStyle_YMDHM:
+                [self addLabelWithName:@[@"年",@"月",@"日",@"时",@"分"]];
+                return 5;
+            case PoporDatePickerStyle_MDHM:
+                [self addLabelWithName:@[@"月",@"日",@"时",@"分"]];
+                return 4;
+            case PoporDatePickerStyle_YMD:
+                [self addLabelWithName:@[@"年",@"月",@"日"]];
+                return 3;
+            case PoporDatePickerStyle_YM:
+                [self addLabelWithName:@[@"年",@"月"]];
+                return 2;
+            case PoporDatePickerStyle_MD:
+                [self addLabelWithName:@[@"月",@"日"]];
+                return 2;
+            case PoporDatePickerStyle_HM:
+                [self addLabelWithName:@[@"时",@"分"]];
+                return 2;
+            case PoporDatePickerStyle_Y:
+                [self addLabelWithName:@[@"年"]];
+                return 1;
+            case PoporDatePickerStyle_M:
+                [self addLabelWithName:@[@"月"]];
+                return 1;
+            case PoporDatePickerStyle_DHM:
+                [self addLabelWithName:@[@"日",@"时",@"分"]];
+                return 3;
+            default:
+                return 0;
+        }
     }
 }
 
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
-    NSArray *numberArr = [self getNumberOfRowsInComponent];
-    return [numberArr[component] integerValue];
+    if (self.customDatasourceArray) {
+        PoporDatePickerSelectLE * le = self.customDatasourceArray[component];
+        return le.ueArray.count;
+    } else {
+        NSArray *numberArr = [self getNumberOfRowsInComponent];
+        return [numberArr[component] integerValue];
+    }
 }
 
 - (NSArray *)getNumberOfRowsInComponent {
@@ -389,299 +446,322 @@
         [customLabel setFont:[UIFont systemFontOfSize:17]];
     }
     NSString *title;
+    NSAttributedString *att;
     
-    switch (self.datePickerStyle) {
-        case PoporDatePickerStyle_YMDHM:
-            if (component==0) {
-                title = _yearArray[row];
-            }
-            if (component==1) {
-                title = _monthArray[row];
-            }
-            if (component==2) {
-                title = _dayArray[row];
-            }
-            if (component==3) {
-                title = _hourArray[row];
-            }
-            if (component==4) {
-                title = _minuteArray[row];
-            }
-            break;
-        case PoporDatePickerStyle_YMD:
-            if (component==0) {
-                title = _yearArray[row];
-            }
-            if (component==1) {
-                title = _monthArray[row];
-            }
-            if (component==2) {
-                title = _dayArray[row];
-            }
-            break;
-        case PoporDatePickerStyle_YM:
-            if (component==0) {
-                title = _yearArray[row];
-            }
-            if (component==1) {
-                title = _monthArray[row];
-            }
-            break;
-        case PoporDatePickerStyle_MDHM:
-            if (component==0) {
-                title = _monthArray[row%12];
-            }
-            if (component==1) {
-                title = _dayArray[row];
-            }
-            if (component==2) {
-                title = _hourArray[row];
-            }
-            if (component==3) {
-                title = _minuteArray[row];
-            }
-            break;
-        case PoporDatePickerStyle_MD:
-            if (component==0) {
-                title = _monthArray[row%12];
-            }
-            if (component==1) {
-                title = _dayArray[row];
-            }
-            break;
-        case PoporDatePickerStyle_HM:
-            if (component==0) {
-                title = _hourArray[row];
-            }
-            if (component==1) {
-                title = _minuteArray[row];
-            }
-            break;
-        case PoporDatePickerStyle_Y:
-            if (component==0) {
-                title = _yearArray[row];
-            }
-            break;
-        case PoporDatePickerStyle_M:
-            if (component==0) {
-                title = _monthArray[row];
-            }
-            break;
-        case PoporDatePickerStyle_DHM:
-            if (component==0) {
-                title = _dayArray[row];
-            }
-            if (component==1) {
-                title = _hourArray[row];
-            }
-            if (component==2) {
-                title = _minuteArray[row];
-            }
-            break;
-        default:
-            title = @"";
-            break;
+    if (self.customDatasourceArray) {
+        PoporDatePickerSelectLE * le = self.customDatasourceArray[component];
+        PoporDatePickerSelectUE * ue = le.ueArray[row];
+        if (ue.att) {
+            att = ue.att;
+        } else {
+            title = ue.text;
+        }
+    } else {
+        switch (self.datePickerStyle) {
+            case PoporDatePickerStyle_YMDHM:
+                if (component==0) {
+                    title = _yearArray[row];
+                }
+                if (component==1) {
+                    title = _monthArray[row];
+                }
+                if (component==2) {
+                    title = _dayArray[row];
+                }
+                if (component==3) {
+                    title = _hourArray[row];
+                }
+                if (component==4) {
+                    title = _minuteArray[row];
+                }
+                break;
+            case PoporDatePickerStyle_YMD:
+                if (component==0) {
+                    title = _yearArray[row];
+                }
+                if (component==1) {
+                    title = _monthArray[row];
+                }
+                if (component==2) {
+                    title = _dayArray[row];
+                }
+                break;
+            case PoporDatePickerStyle_YM:
+                if (component==0) {
+                    title = _yearArray[row];
+                }
+                if (component==1) {
+                    title = _monthArray[row];
+                }
+                break;
+            case PoporDatePickerStyle_MDHM:
+                if (component==0) {
+                    title = _monthArray[row%12];
+                }
+                if (component==1) {
+                    title = _dayArray[row];
+                }
+                if (component==2) {
+                    title = _hourArray[row];
+                }
+                if (component==3) {
+                    title = _minuteArray[row];
+                }
+                break;
+            case PoporDatePickerStyle_MD:
+                if (component==0) {
+                    title = _monthArray[row%12];
+                }
+                if (component==1) {
+                    title = _dayArray[row];
+                }
+                break;
+            case PoporDatePickerStyle_HM:
+                if (component==0) {
+                    title = _hourArray[row];
+                }
+                if (component==1) {
+                    title = _minuteArray[row];
+                }
+                break;
+            case PoporDatePickerStyle_Y:
+                if (component==0) {
+                    title = _yearArray[row];
+                }
+                break;
+            case PoporDatePickerStyle_M:
+                if (component==0) {
+                    title = _monthArray[row];
+                }
+                break;
+            case PoporDatePickerStyle_DHM:
+                if (component==0) {
+                    title = _dayArray[row];
+                }
+                if (component==1) {
+                    title = _hourArray[row];
+                }
+                if (component==2) {
+                    title = _minuteArray[row];
+                }
+                break;
+            default:
+                title = @"";
+                break;
+        }
     }
     
-    customLabel.text = title;
-    if (!_datePickerColor) {
-        _datePickerColor = [UIColor blackColor];
+    if (att) {
+        customLabel.attributedText = att;
+    } else {
+        customLabel.text = title;
+        if (!_datePickerColor) {
+            _datePickerColor = [UIColor blackColor];
+        }
+        customLabel.textColor = _datePickerColor;
     }
-    customLabel.textColor = _datePickerColor;
+    
     return customLabel;
-    
 }
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
-    
-    switch (self.datePickerStyle) {
-        case PoporDatePickerStyle_YMDHM:{
-            if (component == 0) {
-                yearIndex = row;
-                self.showYearLabel.text =_yearArray[yearIndex];
-            }
-            if (component == 1) {
-                monthIndex = row;
-            }
-            if (component == 2) {
-                dayIndex = row;
-            }
-            if (component == 3) {
-                hourIndex = row;
-            }
-            if (component == 4) {
-                minuteIndex = row;
-            }
-            if (component == 0 || component == 1){
-                [self DaysfromYear:[_yearArray[yearIndex] integerValue] andMonth:[_monthArray[monthIndex] integerValue]];
-                if (_dayArray.count-1<dayIndex) {
-                    dayIndex = _dayArray.count-1;
-                }
-            }
-        }
-            break;
-        case PoporDatePickerStyle_YMD:{
-            if (component == 0) {
-                yearIndex = row;
-                self.showYearLabel.text =_yearArray[yearIndex];
-            }
-            if (component == 1) {
-                monthIndex = row;
-            }
-            if (component == 2) {
-                dayIndex = row;
-            }
-            if (component == 0 || component == 1){
-                [self DaysfromYear:[_yearArray[yearIndex] integerValue] andMonth:[_monthArray[monthIndex] integerValue]];
-                if (_dayArray.count-1<dayIndex) {
-                    dayIndex = _dayArray.count-1;
-                }
-            }
-        }
-            break;
-        case PoporDatePickerStyle_YM:{
-            if (component == 0) {
-                yearIndex = row;
-                self.showYearLabel.text =_yearArray[yearIndex];
-                NSLog(@"yearIndex = %ld",row);
-            }
-            if (component == 1) {
-                monthIndex = row;
-                NSLog(@"monthIndex = %ld",row);
-            }
-        }
-            break;
-        case PoporDatePickerStyle_MDHM:{
-            if (component == 1) {
-                dayIndex = row;
-            }
-            if (component == 2) {
-                hourIndex = row;
-            }
-            if (component == 3) {
-                minuteIndex = row;
-            }
-            if (component == 0) {
-                [self yearChange:row];
-                [self DaysfromYear:[_yearArray[yearIndex] integerValue] andMonth:[_monthArray[monthIndex] integerValue]];
-                if (_dayArray.count-1<dayIndex) {
-                    dayIndex = _dayArray.count-1;
-                }
-            }
-            [self DaysfromYear:[_yearArray[yearIndex] integerValue] andMonth:[_monthArray[monthIndex] integerValue]];
+    if (self.customDatasourceArray) {
+        if (self.selectUeArray.count > component) {
+            PoporDatePickerSelectLE * le = self.customDatasourceArray[component];
+            PoporDatePickerSelectUE * ue = le.ueArray[row];
             
+            [self.selectUeArray replaceObjectAtIndex:component withObject:ue];
         }
-            break;
-        case PoporDatePickerStyle_MD:{
-            if (component == 1) {
-                dayIndex = row;
-            }
-            if (component == 0) {
-                [self yearChange:row];
-                [self DaysfromYear:[_yearArray[yearIndex] integerValue] andMonth:[_monthArray[monthIndex] integerValue]];
-                if (_dayArray.count-1<dayIndex) {
-                    dayIndex = _dayArray.count-1;
+    } else {
+        switch (self.datePickerStyle) {
+            case PoporDatePickerStyle_YMDHM:{
+                if (component == 0) {
+                    yearIndex = row;
+                    self.showYearLabel.text =_yearArray[yearIndex];
+                }
+                if (component == 1) {
+                    monthIndex = row;
+                }
+                if (component == 2) {
+                    dayIndex = row;
+                }
+                if (component == 3) {
+                    hourIndex = row;
+                }
+                if (component == 4) {
+                    minuteIndex = row;
+                }
+                if (component == 0 || component == 1){
+                    [self DaysfromYear:[_yearArray[yearIndex] integerValue] andMonth:[_monthArray[monthIndex] integerValue]];
+                    if (_dayArray.count-1<dayIndex) {
+                        dayIndex = _dayArray.count-1;
+                    }
                 }
             }
-            [self DaysfromYear:[_yearArray[yearIndex] integerValue] andMonth:[_monthArray[monthIndex] integerValue]];
+                break;
+            case PoporDatePickerStyle_YMD:{
+                if (component == 0) {
+                    yearIndex = row;
+                    self.showYearLabel.text =_yearArray[yearIndex];
+                }
+                if (component == 1) {
+                    monthIndex = row;
+                }
+                if (component == 2) {
+                    dayIndex = row;
+                }
+                if (component == 0 || component == 1){
+                    [self DaysfromYear:[_yearArray[yearIndex] integerValue] andMonth:[_monthArray[monthIndex] integerValue]];
+                    if (_dayArray.count-1<dayIndex) {
+                        dayIndex = _dayArray.count-1;
+                    }
+                }
+            }
+                break;
+            case PoporDatePickerStyle_YM:{
+                if (component == 0) {
+                    yearIndex = row;
+                    self.showYearLabel.text =_yearArray[yearIndex];
+                    NSLog(@"yearIndex = %ld",row);
+                }
+                if (component == 1) {
+                    monthIndex = row;
+                    NSLog(@"monthIndex = %ld",row);
+                }
+            }
+                break;
+            case PoporDatePickerStyle_MDHM:{
+                if (component == 1) {
+                    dayIndex = row;
+                }
+                if (component == 2) {
+                    hourIndex = row;
+                }
+                if (component == 3) {
+                    minuteIndex = row;
+                }
+                if (component == 0) {
+                    [self yearChange:row];
+                    [self DaysfromYear:[_yearArray[yearIndex] integerValue] andMonth:[_monthArray[monthIndex] integerValue]];
+                    if (_dayArray.count-1<dayIndex) {
+                        dayIndex = _dayArray.count-1;
+                    }
+                }
+                [self DaysfromYear:[_yearArray[yearIndex] integerValue] andMonth:[_monthArray[monthIndex] integerValue]];
+                
+            }
+                break;
+            case PoporDatePickerStyle_MD:{
+                if (component == 1) {
+                    dayIndex = row;
+                }
+                if (component == 0) {
+                    [self yearChange:row];
+                    [self DaysfromYear:[_yearArray[yearIndex] integerValue] andMonth:[_monthArray[monthIndex] integerValue]];
+                    if (_dayArray.count-1<dayIndex) {
+                        dayIndex = _dayArray.count-1;
+                    }
+                }
+                [self DaysfromYear:[_yearArray[yearIndex] integerValue] andMonth:[_monthArray[monthIndex] integerValue]];
+            }
+                break;
+            case PoporDatePickerStyle_HM:{
+                if (component == 0) {
+                    hourIndex = row;
+                }
+                if (component == 1) {
+                    minuteIndex = row;
+                }
+            }
+                break;
+            case PoporDatePickerStyle_Y:{
+                if (component == 0) {
+                    yearIndex = row;
+                    self.showYearLabel.text =_yearArray[yearIndex];
+                }
+            }
+                break;
+            case PoporDatePickerStyle_M:{
+                if (component == 0) {
+                    monthIndex = row;
+                }
+            }
+                break;
+            case PoporDatePickerStyle_DHM:{
+                if (component == 0) {
+                    dayIndex = row;
+                }
+                if (component == 1) {
+                    hourIndex = row;
+                }
+                if (component == 2) {
+                    minuteIndex = row;
+                }
+            }
+                break;
+            default:
+                break;
         }
-            break;
-        case PoporDatePickerStyle_HM:{
-            if (component == 0) {
-                hourIndex = row;
+        
+        [pickerView reloadAllComponents];
+        
+        NSString *dateStr;
+        switch (self.datePickerStyle) {
+            case PoporDatePickerStyle_YMDHM:{
+                dateStr = [NSString stringWithFormat:@"%@-%@-%@ %@:%@",_yearArray[yearIndex],_monthArray[monthIndex],_dayArray[dayIndex],_hourArray[hourIndex],_minuteArray[minuteIndex]];
+                break;
             }
-            if (component == 1) {
-                minuteIndex = row;
+            case PoporDatePickerStyle_MDHM: {
+                dateStr = [NSString stringWithFormat:@"%@-%@ %@:%@", _monthArray[monthIndex],_dayArray[dayIndex],_hourArray[hourIndex],_minuteArray[minuteIndex]];
+                break;
+            }
+            case PoporDatePickerStyle_YMD: {
+                dateStr = [NSString stringWithFormat:@"%@-%@-%@",_yearArray[yearIndex],_monthArray[monthIndex],_dayArray[dayIndex]];
+                break;
+            }
+            case PoporDatePickerStyle_YM: {
+                dateStr = [NSString stringWithFormat:@"%@-%@",_yearArray[yearIndex],_monthArray[monthIndex]];
+                break;
+            }
+            case PoporDatePickerStyle_MD: {
+                // !!!: 原作者这里保留了year属性.
+                dateStr = [NSString stringWithFormat:@"%@-%@-%@",_yearArray[yearIndex],_monthArray[monthIndex],_dayArray[dayIndex]];
+                break;
+            }
+            case PoporDatePickerStyle_HM: {
+                dateStr = [NSString stringWithFormat:@"%@:%@",_hourArray[hourIndex],_minuteArray[minuteIndex]];
+                break;
+            }
+            case PoporDatePickerStyle_Y: {
+                dateStr = [NSString stringWithFormat:@"%@",_yearArray[yearIndex]];
+                break;
+            }
+            case PoporDatePickerStyle_M: {
+                dateStr = [NSString stringWithFormat:@"%@",_monthArray[monthIndex]];
+                break;
+            }
+            case PoporDatePickerStyle_DHM: {
+                dateStr = [NSString stringWithFormat:@"%@ %@:%@",_dayArray[dayIndex],_hourArray[hourIndex],_minuteArray[minuteIndex]];
+                break;
+            }
+            default: {
+                dateStr = nil;
+                break;
             }
         }
-            break;
-        case PoporDatePickerStyle_Y:{
-            if (component == 0) {
-                yearIndex = row;
-                self.showYearLabel.text =_yearArray[yearIndex];
-            }
+        
+        self.scrollToDate = [[NSDate date:dateStr WithFormat:_dateFormatter] dateWithFormatter:_dateFormatter];
+        
+        if ([self.scrollToDate compare:self.minLimitDate] == NSOrderedAscending) {
+            self.scrollToDate = self.minLimitDate;
+            [self getNowDate:self.minLimitDate animated:YES];
+        }else if ([self.scrollToDate compare:self.maxLimitDate] == NSOrderedDescending){
+            self.scrollToDate = self.maxLimitDate;
+            [self getNowDate:self.maxLimitDate animated:YES];
         }
-            break;
-        case PoporDatePickerStyle_M:{
-            if (component == 0) {
-                monthIndex = row;
-            }
-        }
-            break;
-        case PoporDatePickerStyle_DHM:{
-            if (component == 0) {
-                dayIndex = row;
-            }
-            if (component == 1) {
-                hourIndex = row;
-            }
-            if (component == 2) {
-                minuteIndex = row;
-            }
-        }
-            break;
-        default:
-            break;
+        
+        _startDate = self.scrollToDate;
     }
-    
-    [pickerView reloadAllComponents];
-    
-    NSString *dateStr;
-    switch (self.datePickerStyle) {
-        case PoporDatePickerStyle_YMDHM:{
-            dateStr = [NSString stringWithFormat:@"%@-%@-%@ %@:%@",_yearArray[yearIndex],_monthArray[monthIndex],_dayArray[dayIndex],_hourArray[hourIndex],_minuteArray[minuteIndex]];
-            break;
-        }
-        case PoporDatePickerStyle_MDHM: {
-            dateStr = [NSString stringWithFormat:@"%@-%@ %@:%@", _monthArray[monthIndex],_dayArray[dayIndex],_hourArray[hourIndex],_minuteArray[minuteIndex]];
-            break;
-        }
-        case PoporDatePickerStyle_YMD: {
-            dateStr = [NSString stringWithFormat:@"%@-%@-%@",_yearArray[yearIndex],_monthArray[monthIndex],_dayArray[dayIndex]];
-            break;
-        }
-        case PoporDatePickerStyle_YM: {
-            dateStr = [NSString stringWithFormat:@"%@-%@",_yearArray[yearIndex],_monthArray[monthIndex]];
-            break;
-        }
-        case PoporDatePickerStyle_MD: {
-            // !!!: 原作者这里保留了year属性.
-            dateStr = [NSString stringWithFormat:@"%@-%@-%@",_yearArray[yearIndex],_monthArray[monthIndex],_dayArray[dayIndex]];
-            break;
-        }
-        case PoporDatePickerStyle_HM: {
-            dateStr = [NSString stringWithFormat:@"%@:%@",_hourArray[hourIndex],_minuteArray[minuteIndex]];
-            break;
-        }
-        case PoporDatePickerStyle_Y: {
-            dateStr = [NSString stringWithFormat:@"%@",_yearArray[yearIndex]];
-            break;
-        }
-        case PoporDatePickerStyle_M: {
-            dateStr = [NSString stringWithFormat:@"%@",_monthArray[monthIndex]];
-            break;
-        }
-        case PoporDatePickerStyle_DHM: {
-            dateStr = [NSString stringWithFormat:@"%@ %@:%@",_dayArray[dayIndex],_hourArray[hourIndex],_minuteArray[minuteIndex]];
-            break;
-        }
-        default: {
-            dateStr = nil;
-            break;
-        }
-    }
-    
-    self.scrollToDate = [[NSDate date:dateStr WithFormat:_dateFormatter] dateWithFormatter:_dateFormatter];
-    
-    if ([self.scrollToDate compare:self.minLimitDate] == NSOrderedAscending) {
-        self.scrollToDate = self.minLimitDate;
-        [self getNowDate:self.minLimitDate animated:YES];
-    }else if ([self.scrollToDate compare:self.maxLimitDate] == NSOrderedDescending){
-        self.scrollToDate = self.maxLimitDate;
-        [self getNowDate:self.maxLimitDate animated:YES];
-    }
-    
-    _startDate = self.scrollToDate;
 }
 
 - (void)yearChange:(NSInteger)row {
@@ -714,9 +794,22 @@
 
 #pragma mark - Action
 - (void)show {
+    if (!self.bottomView) {
+        [self setupUI];
+        [self defaultConfig];
+    }
+    if (self.customDatasourceArray) {
+        NSMutableArray<PoporDatePickerSelectUE *> * selectUeArray = [NSMutableArray<PoporDatePickerSelectUE *> new];
+        for (PoporDatePickerSelectLE * le in self.customDatasourceArray) {
+            
+            [selectUeArray addObject:le.ueArray.firstObject];
+        }
+        self.selectUeArray = selectUeArray;
+    }
+    
     [[UIApplication sharedApplication].keyWindow addSubview:self];
     [UIView animateWithDuration:0.3 animations:^{
-        self.bottomView.frame = CGRectMake(self.bottomView.frame.origin.x, self.frame.size.height-PickViewHeight - self.bottomGap, self.bottomView.frame.size.width, self.bottomView.frame.size.height);
+        self.bottomView.frame = CGRectMake(self.bottomView.frame.origin.x, self.frame.size.height- self.bottomView.frame.size.height - self.bottomGap, self.bottomView.frame.size.width, self.bottomView.frame.size.height);
         
         self.backgroundColor = PdpRGBA(0, 0, 0, 0.4);
         [self layoutIfNeeded];
@@ -735,11 +828,25 @@
 }
 
 - (void)doneAction:(UIButton *)btn {
-    _startDate = [self.scrollToDate dateWithFormatter:_dateFormatter];
-    
-    if (self.doneBlock) {
-        self.doneBlock(_startDate);
+    if (self.customDatasourceArray) {
+        if (self.customeBlock) {
+            self.customeBlock(self, self.selectUeArray);
+        }
+    } else {
+        _startDate = [self.scrollToDate dateWithFormatter:_dateFormatter];
+        if (self.doneBlock) {
+            self.doneBlock(_startDate);
+        }
     }
+    [self dismiss];
+}
+
+- (void)confirmAction:(UIButton *)btn {
+    [self doneAction:btn];
+}
+
+- (void)cancleAction:(UIButton *)btn {
+    
     [self dismiss];
 }
 
@@ -795,7 +902,7 @@
     dayIndex    = date.day-1;
     hourIndex   = date.hour;
     minuteIndex = date.minute;
-
+    
     //循环滚动时需要用到
     preRow      = (self.scrollToDate.year-PdpMinYear)*12+self.scrollToDate.month-1;
     
