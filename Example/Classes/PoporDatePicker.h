@@ -15,7 +15,9 @@
 @class PoporDatePicker;
 
 typedef void(^PoporDatePickerDateBlock)(NSDate *);
+typedef void(^PoporDatePickerCustomeSelectingBlock)(PoporDatePicker * pdp, NSInteger row, NSInteger component);
 typedef void(^PoporDatePickerCustomeBlock)(PoporDatePicker * pdp, NSMutableArray<PoporDatePickerSelectUE *> * selectUeArray);
+
 
 /**
  *  弹出日期类型
@@ -38,7 +40,7 @@ typedef NS_ENUM(NSInteger, PoporDatePickerUIStyle) {
 };
 
 
-@interface PoporDatePicker : UIView
+@interface PoporDatePicker : UIView <UIPickerViewDelegate,UIPickerViewDataSource>
 
 /**
  *  确定按钮颜色
@@ -103,7 +105,9 @@ typedef NS_ENUM(NSInteger, PoporDatePickerUIStyle) {
 
 // 自定义的选择
 @property (nonatomic, strong) NSMutableArray<PoporDatePickerSelectLE *> * customDatasourceArray;// 一个自定义的二维数组, 区别于date
+@property (nonatomic, copy  ) PoporDatePickerCustomeSelectingBlock customeSelectingBlock; // 选择过程中的block, 可以参考示例1.
 @property (nonatomic, copy  ) PoporDatePickerCustomeBlock customeBlock;
+
 @property (nonatomic, strong) NSMutableArray<PoporDatePickerSelectUE *> * selectUeArray;
 
 @property (nonatomic        ) PoporDatePickerStyle datePickerStyle;
@@ -115,3 +119,37 @@ typedef NS_ENUM(NSInteger, PoporDatePickerUIStyle) {
 
 @end
 
+// 示例1 :customeSelectingBlock
+//datePicker.customeSelectingBlock = ^(PoporDatePicker *pdp, NSInteger row, NSInteger component) {
+//    PoporDatePickerSelectUE * minUE = pdp.selectUeArray.firstObject;
+//    PoporDatePickerSelectUE * maxUE = pdp.selectUeArray.lastObject;
+//    NSInteger minInt = [minUE.text substringToIndex:minUE.text.length-1].integerValue;
+//    NSInteger maxInt = [maxUE.text substringToIndex:maxUE.text.length-1].integerValue;
+//
+//    switch (component) {
+//        case 0: {
+//            if (maxInt < minInt) {
+//                NSInteger toRow = minInt-1;
+//                [pdp.datePicker selectRow:minInt-1 inComponent:1 animated:YES];
+//
+//                PoporDatePickerSelectLE * le = pdp.customDatasourceArray[1];
+//                PoporDatePickerSelectUE * ue = le.ueArray[toRow];
+//                [pdp.selectUeArray replaceObjectAtIndex:1 withObject:ue];
+//            }
+//            break;
+//        }
+//        case 1: {
+//            if (maxInt < minInt) {
+//                NSInteger toRow = maxInt-1;
+//                [pdp.datePicker selectRow:toRow inComponent:0 animated:YES];
+//
+//                PoporDatePickerSelectLE * le = pdp.customDatasourceArray[0];
+//                PoporDatePickerSelectUE * ue = le.ueArray[toRow];
+//                [pdp.selectUeArray replaceObjectAtIndex:0 withObject:ue];
+//            }
+//            break;
+//        }
+//        default:
+//            break;
+//    }
+//    };

@@ -19,7 +19,7 @@
 #define PickViewLabelHeight  226
 //#define PickViewButtonHeight 44
 
-@interface PoporDatePicker ()<UIPickerViewDelegate,UIPickerViewDataSource,UIGestureRecognizerDelegate> {
+@interface PoporDatePicker ()<UIGestureRecognizerDelegate> {
     //日期存储数组
     NSMutableArray *_yearArray;
     NSMutableArray *_monthArray;
@@ -252,42 +252,46 @@
 }
 
 - (void)defaultConfig {
-    if (!_scrollToDate) {
-        _scrollToDate = [NSDate date];
-    }
-    
-    //循环滚动时需要用到
-    preRow       = (self.scrollToDate.year-PdpMinYear)*12+self.scrollToDate.month-1;
-    
-    //设置年月日时分数据
-    _yearArray   = [self setArray:_yearArray];
-    _monthArray  = [self setArray:_monthArray];
-    _dayArray    = [self setArray:_dayArray];
-    _hourArray   = [self setArray:_hourArray];
-    _minuteArray = [self setArray:_minuteArray];
-    
-    for (int i=0; i<60; i++) {
-        NSString *num = [NSString stringWithFormat:@"%02d",i];
-        if (0<i && i<=12) {
-            [_monthArray addObject:num];
+    if (self.customDatasourceArray) {
+        
+    } else {
+        if (!_scrollToDate) {
+            _scrollToDate = [NSDate date];
         }
-        if (i<24) {
-            [_hourArray addObject:num];
+        
+        //循环滚动时需要用到
+        preRow       = (self.scrollToDate.year-PdpMinYear)*12+self.scrollToDate.month-1;
+        
+        //设置年月日时分数据
+        _yearArray   = [self setArray:_yearArray];
+        _monthArray  = [self setArray:_monthArray];
+        _dayArray    = [self setArray:_dayArray];
+        _hourArray   = [self setArray:_hourArray];
+        _minuteArray = [self setArray:_minuteArray];
+        
+        for (int i=0; i<60; i++) {
+            NSString *num = [NSString stringWithFormat:@"%02d",i];
+            if (0<i && i<=12) {
+                [_monthArray addObject:num];
+            }
+            if (i<24) {
+                [_hourArray addObject:num];
+            }
+            [_minuteArray addObject:num];
         }
-        [_minuteArray addObject:num];
-    }
-    for (NSInteger i=PdpMinYear; i<=PdpMaxYear; i++) {
-        NSString *num = [NSString stringWithFormat:@"%ld",(long)i];
-        [_yearArray addObject:num];
-    }
-    
-    //最大最小限制
-    if (!self.maxLimitDate) {
-        self.maxLimitDate = [NSDate date:@"2099-12-31 23:59" WithFormat:@"yyyy-MM-dd HH:mm"];
-    }
-    //最小限制
-    if (!self.minLimitDate) {
-        self.minLimitDate = [NSDate date:@"1900-01-01 00:00" WithFormat:@"yyyy-MM-dd HH:mm"];
+        for (NSInteger i=PdpMinYear; i<=PdpMaxYear; i++) {
+            NSString *num = [NSString stringWithFormat:@"%ld",(long)i];
+            [_yearArray addObject:num];
+        }
+        
+        //最大最小限制
+        if (!self.maxLimitDate) {
+            self.maxLimitDate = [NSDate date:@"2099-12-31 23:59" WithFormat:@"yyyy-MM-dd HH:mm"];
+        }
+        //最小限制
+        if (!self.minLimitDate) {
+            self.minLimitDate = [NSDate date:@"1900-01-01 00:00" WithFormat:@"yyyy-MM-dd HH:mm"];
+        }
     }
 }
 
@@ -571,6 +575,10 @@
             PoporDatePickerSelectUE * ue = le.ueArray[row];
             
             [self.selectUeArray replaceObjectAtIndex:component withObject:ue];
+            
+            if (self.customeSelectingBlock) {
+                self.customeSelectingBlock(self, row, component);
+            }
         }
     } else {
         switch (self.datePickerStyle) {
