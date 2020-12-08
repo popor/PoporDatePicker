@@ -792,13 +792,13 @@
 }
 
 #pragma mark - UIGestureRecognizerDelegate
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
-{
-    if( [touch.view isDescendantOfView:self.bottomView]) {
-        return NO;
-    }
-    return YES;
-}
+//- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+//{
+//    if( [touch.view isDescendantOfView:self.bottomView]) {
+//        return YES;
+//    }
+//    return YES;
+//}
 
 #pragma mark - Action
 - (void)show {
