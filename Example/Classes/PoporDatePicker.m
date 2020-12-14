@@ -26,7 +26,6 @@
     NSMutableArray *_dayArray;
     NSMutableArray *_hourArray;
     NSMutableArray *_minuteArray;
-    NSString *_dateFormatter;
     //记录位置
     NSInteger yearIndex;
     NSInteger monthIndex;
@@ -43,6 +42,43 @@
 
 @implementation PoporDatePicker
 
++ (NSString *)formatterFromStyle:(PoporDatePickerStyle)datePickerStyle {
+    NSString * text;
+    switch (datePickerStyle) {
+        case PoporDatePickerStyle_YMDHM:
+            text = @"yyyy-MM-dd HH:mm";
+            break;
+        case PoporDatePickerStyle_MDHM:
+            text = @"yyyy-MM-dd HH:mm";
+            break;
+        case PoporDatePickerStyle_YMD:
+            text = @"yyyy-MM-dd";
+            break;
+        case PoporDatePickerStyle_YM:
+            text = @"yyyy-MM";
+            break;
+        case PoporDatePickerStyle_MD:
+            text = @"yyyy-MM-dd";
+            break;
+        case PoporDatePickerStyle_HM:
+            text = @"HH:mm";
+            break;
+        case PoporDatePickerStyle_Y:
+            text = @"yyyy";
+            break;
+        case PoporDatePickerStyle_M:
+            text = @"MM";
+            break;
+        case PoporDatePickerStyle_DHM:
+            text = @"dd HH:mm";
+            break;
+        default:
+            text = @"yyyy-MM-dd HH:mm";
+            break;
+    }
+    return text;
+}
+
 - (instancetype)init {
     if (self = [super init]) {
         self.bottomGap       = 10;
@@ -58,43 +94,6 @@
         
     }
     return self;
-}
-
-- (void)setDatePickerStyle:(PoporDatePickerStyle)datePickerStyle {
-    _datePickerStyle = datePickerStyle;
-    
-    switch (datePickerStyle) {
-        case PoporDatePickerStyle_YMDHM:
-            _dateFormatter = @"yyyy-MM-dd HH:mm";
-            break;
-        case PoporDatePickerStyle_MDHM:
-            _dateFormatter = @"yyyy-MM-dd HH:mm";
-            break;
-        case PoporDatePickerStyle_YMD:
-            _dateFormatter = @"yyyy-MM-dd";
-            break;
-        case PoporDatePickerStyle_YM:
-            _dateFormatter = @"yyyy-MM";
-            break;
-        case PoporDatePickerStyle_MD:
-            _dateFormatter = @"yyyy-MM-dd";
-            break;
-        case PoporDatePickerStyle_HM:
-            _dateFormatter = @"HH:mm";
-            break;
-        case PoporDatePickerStyle_Y:
-            _dateFormatter = @"yyyy";
-            break;
-        case PoporDatePickerStyle_M:
-            _dateFormatter = @"MM";
-            break;
-        case PoporDatePickerStyle_DHM:
-            _dateFormatter = @"dd HH:mm";
-            break;
-        default:
-            _dateFormatter = @"yyyy-MM-dd HH:mm";
-            break;
-    }
 }
 
 - (void)setupUI {
@@ -279,9 +278,22 @@
             }
             [_minuteArray addObject:num];
         }
-        for (NSInteger i=PdpMinYear; i<=PdpMaxYear; i++) {
-            NSString *num = [NSString stringWithFormat:@"%ld",(long)i];
-            [_yearArray addObject:num];
+        
+        // year
+        if (self.showToToday) {
+            if (self.toTodayMaxYear == 0) {
+                self.toTodayMaxYear = [NSDate new].year;
+            }
+            for (NSInteger i=PdpMinYear; i<=self.toTodayMaxYear; i++) {
+                NSString *num = [NSString stringWithFormat:@"%ld",(long)i];
+                [_yearArray addObject:num];
+            }
+            [_yearArray   addObject:self.toTodayText];
+        } else {
+            for (NSInteger i=PdpMinYear; i<=PdpMaxYear; i++) {
+                NSString *num = [NSString stringWithFormat:@"%ld",(long)i];
+                [_yearArray addObject:num];
+            }
         }
         
         //最大最小限制
@@ -387,7 +399,13 @@
         return le.ueArray.count;
     } else {
         NSArray *numberArr = [self getNumberOfRowsInComponent];
-        return [numberArr[component] integerValue];
+        NSInteger row = [numberArr[component] integerValue];
+        
+        if (self.isSelectToToday && component != 0) {
+            row = 0;
+        }
+        
+        return row;
     }
 }
 
@@ -402,7 +420,12 @@
     NSInteger hourNum = _hourArray.count;
     NSInteger minuteNUm = _minuteArray.count;
     
-    NSInteger timeInterval = PdpMaxYear - PdpMinYear;
+    NSInteger timeInterval;
+    if (self.showToToday) {
+        timeInterval = self.toTodayMaxYear - PdpMinYear;
+    } else {
+        timeInterval = PdpMaxYear - PdpMinYear;
+    }
     
     switch (self.datePickerStyle) {
         case PoporDatePickerStyle_YMDHM:
@@ -439,10 +462,18 @@
 }
 
 - (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component {
-    return 40;
+    if (self.customeDelegateCellHeightBlock) {
+        return self.customeDelegateCellHeightBlock(self, component);
+    } else {
+        return 40;
+    }
 }
 
 - (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view {
+    if (self.customeDelegateCellBlock) {
+        return self.customeDelegateCellBlock(self, row, component, view);
+    }
+    
     UILabel *customLabel = (UILabel *)view;
     if (!customLabel) {
         customLabel = [[UILabel alloc] init];
@@ -461,97 +492,117 @@
             title = ue.text;
         }
     } else {
-        switch (self.datePickerStyle) {
-            case PoporDatePickerStyle_YMDHM:
-                if (component==0) {
-                    title = _yearArray[row];
-                }
-                if (component==1) {
-                    title = _monthArray[row];
-                }
-                if (component==2) {
-                    title = _dayArray[row];
-                }
-                if (component==3) {
-                    title = _hourArray[row];
-                }
-                if (component==4) {
-                    title = _minuteArray[row];
-                }
-                break;
-            case PoporDatePickerStyle_YMD:
-                if (component==0) {
-                    title = _yearArray[row];
-                }
-                if (component==1) {
-                    title = _monthArray[row];
-                }
-                if (component==2) {
-                    title = _dayArray[row];
-                }
-                break;
-            case PoporDatePickerStyle_YM:
-                if (component==0) {
-                    title = _yearArray[row];
-                }
-                if (component==1) {
-                    title = _monthArray[row];
-                }
-                break;
-            case PoporDatePickerStyle_MDHM:
-                if (component==0) {
-                    title = _monthArray[row%12];
-                }
-                if (component==1) {
-                    title = _dayArray[row];
-                }
-                if (component==2) {
-                    title = _hourArray[row];
-                }
-                if (component==3) {
-                    title = _minuteArray[row];
-                }
-                break;
-            case PoporDatePickerStyle_MD:
-                if (component==0) {
-                    title = _monthArray[row%12];
-                }
-                if (component==1) {
-                    title = _dayArray[row];
-                }
-                break;
-            case PoporDatePickerStyle_HM:
-                if (component==0) {
-                    title = _hourArray[row];
-                }
-                if (component==1) {
-                    title = _minuteArray[row];
-                }
-                break;
-            case PoporDatePickerStyle_Y:
-                if (component==0) {
-                    title = _yearArray[row];
-                }
-                break;
-            case PoporDatePickerStyle_M:
-                if (component==0) {
-                    title = _monthArray[row];
-                }
-                break;
-            case PoporDatePickerStyle_DHM:
-                if (component==0) {
-                    title = _dayArray[row];
-                }
-                if (component==1) {
-                    title = _hourArray[row];
-                }
-                if (component==2) {
-                    title = _minuteArray[row];
-                }
-                break;
-            default:
-                title = @"";
-                break;
+        if (self.isSelectToToday && component >0) {
+            title = @"";
+        } else {
+            switch (self.datePickerStyle) {
+                case PoporDatePickerStyle_YMDHM:
+                    if (component==0) {
+                        title = _yearArray[row];
+                        
+                        if (row == [self.datePicker selectedRowInComponent:0]) {
+                            [self checkIfToday_year:title];
+                        }
+                    }
+                    if (component==1) {
+                        title = _monthArray[row];
+                    }
+                    if (component==2) {
+                        title = _dayArray[row];
+                    }
+                    if (component==3) {
+                        title = _hourArray[row];
+                    }
+                    if (component==4) {
+                        title = _minuteArray[row];
+                    }
+                    break;
+                case PoporDatePickerStyle_YMD:
+                    if (component==0) {
+                        title = _yearArray[row];
+                        
+                        if (row == [self.datePicker selectedRowInComponent:0]) {
+                            [self checkIfToday_year:title];
+                        }
+                    }
+                    if (component==1) {
+                        title = _monthArray[row];
+                    }
+                    if (component==2) {
+                        title = _dayArray[row];
+                    }
+                    break;
+                case PoporDatePickerStyle_YM:
+                    if (component==0) {
+                        title = _yearArray[row];
+                        
+                        if (row == [self.datePicker selectedRowInComponent:0]) {
+                            [self checkIfToday_year:title];
+                        }
+                    }
+                    if (component==1) {
+                        title = _monthArray[row];
+                    }
+                    break;
+                case PoporDatePickerStyle_MDHM:
+                    if (component==0) {
+                        title = _monthArray[row%12];
+                    }
+                    if (component==1) {
+                        title = _dayArray[row];
+                    }
+                    if (component==2) {
+                        title = _hourArray[row];
+                    }
+                    if (component==3) {
+                        title = _minuteArray[row];
+                    }
+                    break;
+                case PoporDatePickerStyle_MD:
+                    if (component==0) {
+                        title = _monthArray[row%12];
+                    }
+                    if (component==1) {
+                        title = _dayArray[row];
+                    }
+                    break;
+                case PoporDatePickerStyle_HM:
+                    if (component==0) {
+                        title = _hourArray[row];
+                    }
+                    if (component==1) {
+                        title = _minuteArray[row];
+                    }
+                    break;
+                case PoporDatePickerStyle_Y:
+                    if (component==0) {
+                        title = _yearArray[row];
+                        
+                        if (row == [self.datePicker selectedRowInComponent:0]) {
+                            [self checkIfToday_year:title];
+                        }
+                    }
+                    break;
+                case PoporDatePickerStyle_M:
+                    if (component==0) {
+                        title = _monthArray[row];
+                    }
+                    break;
+                case PoporDatePickerStyle_DHM:
+                    if (component==0) {
+                        title = _dayArray[row];
+                    }
+                    if (component==1) {
+                        title = _hourArray[row];
+                    }
+                    if (component==2) {
+                        title = _minuteArray[row];
+                    }
+                    break;
+                default:
+                    title = @"";
+                    break;
+            }
         }
     }
     
@@ -566,6 +617,25 @@
     }
     
     return customLabel;
+}
+
+- (void)checkIfToday_year:(NSString *)title {
+    if (!self.showToToday) {
+        return;
+    }
+    
+    BOOL today = [title isEqualToString:self.toTodayText];
+    if ( self.isSelectToToday != today) {
+        self.isSelectToToday = today;
+        
+        NSInteger count = [self numberOfComponentsInPickerView:self.datePicker];
+        NSInteger row;
+        if (count >1) {
+            for (NSInteger i = 1; i<count; i++) {
+                [self.datePicker reloadComponent:i];
+            }
+        }
+    }
 }
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
@@ -758,7 +828,7 @@
             }
         }
         
-        self.scrollToDate = [[NSDate date:dateStr WithFormat:_dateFormatter] dateWithFormatter:_dateFormatter];
+        self.scrollToDate = [[NSDate date:dateStr WithFormat:self.dateFormatter] dateWithFormatter:self.dateFormatter];
         
         if ([self.scrollToDate compare:self.minLimitDate] == NSOrderedAscending) {
             self.scrollToDate = self.minLimitDate;
@@ -841,9 +911,15 @@
             self.customeBlock(self, self.selectUeArray);
         }
     } else {
-        _startDate = [self.scrollToDate dateWithFormatter:_dateFormatter];
-        if (self.doneBlock) {
-            self.doneBlock(_startDate);
+        if (self.isSelectToToday) {
+            if (self.doneBlock) {
+                self.doneBlock(YES, nil);
+            }
+        } else {
+            _startDate = [self.scrollToDate dateWithFormatter:self.dateFormatter];
+            if (self.doneBlock) {
+                self.doneBlock(NO, _startDate);
+            }
         }
     }
     [self dismiss];
@@ -864,29 +940,32 @@
     NSInteger num_year  = year;
     NSInteger num_month = month;
     
+    int maxDay = 0;
     BOOL isrunNian = num_year%4==0 ? (num_year%100==0? (num_year%400==0?YES:NO):YES):NO;
     switch (num_month) {
         case 1:case 3:case 5:case 7:case 8:case 10:case 12:{
-            [self setdayArray:31];
-            return 31;
+            maxDay = 31;
+            break;
         }
         case 4:case 6:case 9:case 11:{
-            [self setdayArray:30];
-            return 30;
+            maxDay = 30;
+            break;
         }
         case 2:{
             if (isrunNian) {
-                [self setdayArray:29];
-                return 29;
+                maxDay = 29;
             }else{
-                [self setdayArray:28];
-                return 28;
+                maxDay = 28;
             }
+            break;
         }
         default:
             break;
     }
-    return 0;
+    
+    [self setdayArray:maxDay];
+    
+    return maxDay;
 }
 
 //设置每月的天数数组

@@ -14,10 +14,15 @@
 
 @class PoporDatePicker;
 
-typedef void(^PoporDatePickerDateBlock)(NSDate *);
+typedef void(^PoporDatePickerDateBlock)(BOOL toToday, NSDate * date);
 typedef void(^PoporDatePickerCustomeSelectingBlock)(PoporDatePicker * pdp, NSInteger row, NSInteger component);
 typedef void(^PoporDatePickerCustomeBlock)(PoporDatePicker * pdp, NSMutableArray<PoporDatePickerSelectUE *> * selectUeArray);
 
+// 自定义view高度
+typedef CGFloat(^PoporDatePickerCustomeDelegate_cellHeight)(PoporDatePicker * pdp, NSInteger component);
+
+// 自定义view
+typedef UIView*(^PoporDatePickerCustomeDelegate_cell)(PoporDatePicker * pdp, NSInteger row, NSInteger component, UIView * reusingView);
 
 /**
  *  弹出日期类型
@@ -32,6 +37,7 @@ typedef NS_ENUM(int, PoporDatePickerStyle) {
     PoporDatePickerStyle_Y,        //年
     PoporDatePickerStyle_M,        //月
     PoporDatePickerStyle_DHM,      //日时分
+    PoporDatePickerStyle_custom,   // 自定义, 不是时间格式
 };
 
 typedef NS_ENUM(NSInteger, PoporDatePickerUIStyle) {
@@ -102,6 +108,7 @@ typedef NS_ENUM(NSInteger, PoporDatePickerUIStyle) {
 @property (nonatomic, strong) UIPickerView * datePicker;
 @property (nonatomic, strong) NSDate       * scrollToDate;//滚到指定日期
 @property (nonatomic, copy  ) PoporDatePickerDateBlock doneBlock;
+@property (nonatomic, copy  ) NSString     * dateFormatter;
 
 // 自定义的选择
 @property (nonatomic, strong) NSMutableArray<PoporDatePickerSelectLE *> * customDatasourceArray;// 一个自定义的二维数组, 区别于date
@@ -113,9 +120,20 @@ typedef NS_ENUM(NSInteger, PoporDatePickerUIStyle) {
 @property (nonatomic        ) PoporDatePickerStyle datePickerStyle;
 @property (nonatomic        ) PoporDatePickerUIStyle uiStyle;
 
+// 自定义block
+@property (nonatomic, copy  ) PoporDatePickerCustomeDelegate_cellHeight customeDelegateCellHeightBlock;
+@property (nonatomic, copy  ) PoporDatePickerCustomeDelegate_cell       customeDelegateCellBlock;
+
+// 显示至今的参数
+@property (nonatomic        ) BOOL showToToday;// 前提必须是, 为了不紊乱, 必须包括年.
+@property (nonatomic, copy  ) NSString * toTodayText;// 默认为 "至今"
+@property (nonatomic        ) NSInteger toTodayMaxYear;// 默认为 当前时间的yyyy
+@property (nonatomic        ) BOOL isSelectToToday; // 主要用于内部使用: 是否选择了至今
 
 - (void)show;
 - (void)dismiss;
+
++ (NSString *)formatterFromStyle:(PoporDatePickerStyle)datePickerStyle;
 
 @end
 
