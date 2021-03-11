@@ -462,16 +462,16 @@
 }
 
 - (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component {
-    if (self.customeDelegateCellHeightBlock) {
-        return self.customeDelegateCellHeightBlock(self, component);
+    if (self.customDelegateCellHeightBlock) {
+        return self.customDelegateCellHeightBlock(self, component);
     } else {
         return 40;
     }
 }
 
 - (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view {
-    if (self.customeDelegateCellBlock) {
-        return self.customeDelegateCellBlock(self, row, component, view);
+    if (self.customDelegateCellBlock) {
+        return self.customDelegateCellBlock(self, row, component, view);
     }
     
     UILabel *customLabel = (UILabel *)view;
@@ -646,8 +646,8 @@
             
             [self.selectUeArray replaceObjectAtIndex:component withObject:ue];
             
-            if (self.customeSelectingBlock) {
-                self.customeSelectingBlock(self, row, component);
+            if (self.customSelectingBlock) {
+                self.customSelectingBlock(self, row, component);
             }
         }
     } else {
@@ -907,8 +907,8 @@
 
 - (void)doneAction:(UIButton *)btn {
     if (self.customDatasourceArray) {
-        if (self.customeBlock) {
-            self.customeBlock(self, self.selectUeArray);
+        if (self.customSelectedBlock) {
+            self.customSelectedBlock(self, self.selectUeArray);
         }
     } else {
         if (self.isSelectToToday) {

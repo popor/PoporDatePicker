@@ -15,14 +15,14 @@
 @class PoporDatePicker;
 
 typedef void(^PoporDatePickerDateBlock)(BOOL toToday, NSDate * date);
-typedef void(^PoporDatePickerCustomeSelectingBlock)(PoporDatePicker * pdp, NSInteger row, NSInteger component);
-typedef void(^PoporDatePickerCustomeBlock)(PoporDatePicker * pdp, NSMutableArray<PoporDatePickerSelectUE *> * selectUeArray);
+typedef void(^PoporDatePickerCustomSelectingBlock)(PoporDatePicker * pdp, NSInteger row, NSInteger component);
+typedef void(^PoporDatePickerCustomBlock)(PoporDatePicker * pdp, NSMutableArray<PoporDatePickerSelectUE *> * selectUeArray);
 
 // 自定义view高度
-typedef CGFloat(^PoporDatePickerCustomeDelegate_cellHeight)(PoporDatePicker * pdp, NSInteger component);
+typedef CGFloat(^PoporDatePickerCustomDelegate_cellHeight)(PoporDatePicker * pdp, NSInteger component);
 
 // 自定义view
-typedef UIView*(^PoporDatePickerCustomeDelegate_cell)(PoporDatePicker * pdp, NSInteger row, NSInteger component, UIView * reusingView);
+typedef UIView*(^PoporDatePickerCustomDelegate_cell)(PoporDatePicker * pdp, NSInteger row, NSInteger component, UIView * reusingView);
 
 /**
  *  弹出日期类型
@@ -112,8 +112,8 @@ typedef NS_ENUM(NSInteger, PoporDatePickerUIStyle) {
 
 // 自定义的选择
 @property (nonatomic, strong) NSMutableArray<PoporDatePickerSelectLE *> * customDatasourceArray;// 一个自定义的二维数组, 区别于date
-@property (nonatomic, copy  ) PoporDatePickerCustomeSelectingBlock customeSelectingBlock; // 选择过程中的block, 可以参考示例1.
-@property (nonatomic, copy  ) PoporDatePickerCustomeBlock customeBlock;
+@property (nonatomic, copy  ) PoporDatePickerCustomSelectingBlock customSelectingBlock; // 选择过程中的block, 可以参考示例1.
+@property (nonatomic, copy  ) PoporDatePickerCustomBlock          customSelectedBlock;  // 用户选中的block.
 
 @property (nonatomic, strong) NSMutableArray<PoporDatePickerSelectUE *> * selectUeArray;
 
@@ -121,8 +121,8 @@ typedef NS_ENUM(NSInteger, PoporDatePickerUIStyle) {
 @property (nonatomic        ) PoporDatePickerUIStyle uiStyle;
 
 // 自定义block
-@property (nonatomic, copy  ) PoporDatePickerCustomeDelegate_cellHeight customeDelegateCellHeightBlock;
-@property (nonatomic, copy  ) PoporDatePickerCustomeDelegate_cell       customeDelegateCellBlock;
+@property (nonatomic, copy  ) PoporDatePickerCustomDelegate_cellHeight customDelegateCellHeightBlock;
+@property (nonatomic, copy  ) PoporDatePickerCustomDelegate_cell       customDelegateCellBlock;
 
 // 显示至今的参数
 @property (nonatomic        ) BOOL showToToday;// 前提必须是, 为了不紊乱, 必须包括年.
@@ -138,7 +138,7 @@ typedef NS_ENUM(NSInteger, PoporDatePickerUIStyle) {
 @end
 
 // 示例1 :customeSelectingBlock
-//datePicker.customeSelectingBlock = ^(PoporDatePicker *pdp, NSInteger row, NSInteger component) {
+//datePicker.customSelectingBlock = ^(PoporDatePicker *pdp, NSInteger row, NSInteger component) {
 //    PoporDatePickerSelectUE * minUE = pdp.selectUeArray.firstObject;
 //    PoporDatePickerSelectUE * maxUE = pdp.selectUeArray.lastObject;
 //    NSInteger minInt = [minUE.text substringToIndex:minUE.text.length-1].integerValue;
